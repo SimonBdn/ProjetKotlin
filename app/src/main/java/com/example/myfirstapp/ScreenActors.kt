@@ -15,22 +15,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 
 @Composable
 fun ScreenActeurs(mainViewModel: MainViewModel, navController: NavController) {
     mainViewModel.getActors()
     val actors by mainViewModel.actors.collectAsState()
+    val configuration = LocalConfiguration.current
+    val formatTel = configuration.screenWidthDp < configuration.screenHeightDp
+    val columns = if(formatTel) 2 else 4
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Fixed(columns),
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     )  {
         items(actors) { actor ->
             Card(
-                modifier = Modifier.padding(8.dp).height(200.dp).clickable {
+                modifier = Modifier.padding(8.dp).height(250.dp).clickable {
                     navController.navigate("acteurDetail/${actor.id}")
                 },
                 elevation = CardDefaults.cardElevation(4.dp)
@@ -42,12 +47,14 @@ fun ScreenActeurs(mainViewModel: MainViewModel, navController: NavController) {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val imageUrl = "https://image.tmdb.org/t/p/w154${actor.profile_path}"
+                    val imageUrl = "https://image.tmdb.org/t/p/w342${actor.profile_path}"
                     AsyncImage(
                         model = imageUrl,
                         contentDescription = actor.name
                     )
-                    Text(text = actor.name)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = actor.name,
+                        fontWeight = FontWeight.Bold)
                 }
             }
         }

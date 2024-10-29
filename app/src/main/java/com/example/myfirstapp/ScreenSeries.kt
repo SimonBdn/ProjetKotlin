@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 
 
@@ -22,9 +24,12 @@ import androidx.navigation.NavController
 fun ScreenSeries(mainViewModel: MainViewModel, navController: NavController) {
     mainViewModel.getSeries()
     val series by mainViewModel.series.collectAsState()
+    val configuration = LocalConfiguration.current
+    val formatTel = configuration.screenWidthDp < configuration.screenHeightDp
+    val columns = if(formatTel) 2 else 4
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Fixed(columns),
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
@@ -33,7 +38,7 @@ fun ScreenSeries(mainViewModel: MainViewModel, navController: NavController) {
             Card(
                 modifier = Modifier
                     .padding(8.dp)
-                    .height(200.dp)
+                    .height(300.dp)
                     .clickable {
                         navController.navigate("serieDetail/${serie.id}")
                     },
@@ -46,12 +51,15 @@ fun ScreenSeries(mainViewModel: MainViewModel, navController: NavController) {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val imageUrl = "https://image.tmdb.org/t/p/w154${serie.poster_path}"
+                    val imageUrl = "https://image.tmdb.org/t/p/w342${serie.poster_path}"
                     AsyncImage(
                         model = imageUrl,
                         contentDescription = serie.name
                     )
-                    Text(text = serie.name)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = serie.name,
+                        fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(text = DateFormat(serie.first_air_date))
                 }
             }

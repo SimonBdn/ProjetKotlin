@@ -2,7 +2,8 @@ package com.example.myfirstapp
 
 data class TmdbMovieResult(
     var page: Int = 0,
-    val results: List<TmdbMovie> = listOf())
+    val results: List<TmdbMovie> = listOf(),
+    val cast: List<TmdbMovie> = listOf())
 
 data class TmdbMovie(
     var overview: String = "",
@@ -48,7 +49,6 @@ data class TmdbActor(
     val biography: String = "",
     val birthday: String = "",
     val deathday: String = "",
-    val known_for: List<TmdbMovie> = listOf()git
 )
 
 

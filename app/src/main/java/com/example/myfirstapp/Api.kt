@@ -4,6 +4,8 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+// Api TMBd 317519a83cc36ab9367ba50e5aa75b40
+
 interface Api {
     @GET("trending/movie/week")
     suspend fun lastmovies(@Query("api_key") api_key: String,
@@ -31,6 +33,10 @@ interface Api {
                              @Query("append_to_response") appendToResponse: String = "credits"
         ): TmdbSerie
 
+    @GET("search/tv")
+    suspend fun searchseries(@Query("api_key") api_key: String,
+                             @Query("query") searchtext: String): TmdbSerieResult
+
     @GET("trending/person/week")
     suspend fun lastactors(@Query("api_key") api_key: String,
                            @Query("language") langague: String): TmdbActorResult
@@ -38,6 +44,15 @@ interface Api {
     @GET("person/{id}")
     suspend fun actorDetails(@Path("id") id: String,
                              @Query("api_key") api_key: String,
-                             @Query("language") langague: String): TmdbActor
+                             @Query("language") langague: String)
+        : TmdbActor
 
+    @GET("search/person")
+    suspend fun searchactors(@Query("api_key") api_key: String,
+                             @Query("query") searchtext: String): TmdbActorResult
+
+    @GET("person/{id}/movie_credits")
+    suspend fun actorMovies(@Path("id") id: String,
+                            @Query("api_key") api_key: String,
+                            @Query("language") langague: String): TmdbMovieResult
 }

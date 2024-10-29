@@ -4,29 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -34,15 +21,21 @@ import androidx.compose.material3.Scaffold
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.compose.material3.TextField
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.compose.material3.Text
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.ImeAction
 
 
 @Serializable class ProfilHome
@@ -50,7 +43,6 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 @Serializable class DestinationSeries
 @Serializable class DestinationActeurs
 
-// Api TMBd 317519a83cc36ab9367ba50e5aa75b40
 
 
 class MainActivity : ComponentActivity() {
@@ -60,47 +52,65 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-
             val mainViewModel: MainViewModel = viewModel()
-
+            var showSearchBar by remember { mutableStateOf(false) }
 
             Scaffold(
+                topBar = {
+                    if (showSearchBar) {
+                        TextField(
+                            value = mainViewModel.searchQuery,
+                            onValueChange = { mainViewModel.searchQuery = it },
+                            modifier = Modifier.fillMaxWidth().padding(24.dp),
+                            placeholder = { Text("Rechercher...") },
+                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    mainViewModel.searchMovies()
+                                    mainViewModel.searchSeries()
+                                    mainViewModel.searchActors()
+                                    navController.navigate("ScreenSearch")
+                                }
+                            )
+                        )
+                    }
+                },
                 bottomBar = {
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentDestination = navBackStackEntry?.destination
 
                         if(currentDestination?.hasRoute<ProfilHome>()== false) {
-                            NavigationBar(containerColor = Color(0xFFFFC0CB)) {
+                            NavigationBar(containerColor = Color(0xFFFFC0CB),
+                                modifier = Modifier.height(64.dp)) {
                             NavigationBarItem(
-                                icon = {
-                                    Icon(
-                                        painterResource(R.drawable.movie),
-                                        contentDescription = "Films"
-                                    )
-                                },
+                                icon = {Icon(painterResource(R.drawable.movie),
+                                        contentDescription = "Films")},
                                 selected = currentDestination?.hasRoute<DestinationFilms>() == true,
                                 onClick = { navController.navigate(DestinationFilms()) })
                             NavigationBarItem(
-                                icon = {
-                                    Icon(
-                                        painterResource(R.drawable.tv),
-                                        contentDescription = "Series"
-                                    )
-                                },
+                                icon = { Icon(painterResource(R.drawable.tv),
+                                    contentDescription = "Series")},
                                 selected = currentDestination?.hasRoute<DestinationSeries>() == true,
                                 onClick = { navController.navigate(DestinationSeries()) })
                             NavigationBarItem(
-                                icon = {
-                                    Icon(
-                                        painterResource(R.drawable.baseline_person_24),
-                                        contentDescription = "Acteurs"
-                                    )
-                                },
+                                icon = { Icon(painterResource(R.drawable.baseline_person_24),
+                                        contentDescription = "Acteurs")},
                                 selected = currentDestination?.hasRoute<DestinationActeurs>() == true,
                                 onClick = { navController.navigate(DestinationActeurs()) })
                         }
                     }
+                },
+                floatingActionButton = {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentDestination = navBackStackEntry?.destination
+
+                    if (currentDestination?.hasRoute<ProfilHome>()== false) {
+                        FloatingActionButton(onClick = { showSearchBar = !showSearchBar }) {
+                            Icon(painterResource(R.drawable.search), contentDescription = "Recherche")
+                        }
+                    }
                 }
+
             ) { innerPadding ->
                 NavHost(
                     navController = navController, startDestination = ProfilHome(),
@@ -122,136 +132,17 @@ class MainActivity : ComponentActivity() {
                     composable("acteurDetail/{acteurId}") { backStackEntry ->
                         val acteurId = backStackEntry.arguments?.getString("acteurId")?.toString()
                             ?: return@composable
-                        ScreenActorDetail(mainViewModel, acteurId)
+                        ScreenActorDetail(mainViewModel, acteurId, navController)
                         }
+                    composable("ScreenSearch") { ScreenSearch(mainViewModel, navController) }
                     }
                 }
             }
         }
     }
 
-    @Composable
-    fun ProfilHome(windowClass: WindowSizeClass, navController: NavController) {
-        when (windowClass.windowWidthSizeClass) {
-            WindowWidthSizeClass.COMPACT -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .wrapContentSize(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Simon BODIN",
-                        fontWeight = FontWeight.Bold,
-                    )
 
-                    Spacer(modifier = Modifier.size(16.dp))
 
-                    Image(
-                        painter = painterResource(R.drawable.chat),
-                        contentDescription = "un potit chat",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(200.dp)
-                            .clip(CircleShape)
-                            .border(BorderStroke(2.dp, Color.Black), CircleShape)
-                            .scale(1.25f)
-                    )
 
-                    Spacer(modifier = Modifier.size(16.dp))
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column {
-                            Image(
-                                painter = painterResource(R.drawable.telicon),
-                                contentDescription = "un téléphone",
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Image(
-                                painter = painterResource(R.drawable.baseline),
-                                contentDescription = "un mail",
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-
-                        Column {
-                            Text(text = "simonbo@orange.fr")
-                            Text(text = "06 00 90 00 69")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.size(32.dp))
-                    Button(onClick = { navController.navigate(DestinationFilms()) }) {
-                        Text(text = "Démarrer")
-                    }
-                }
-            }
-
-            else -> {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .wrapContentSize(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Simon BODIN",
-                            fontWeight = FontWeight.Bold,
-                        )
-
-                        Spacer(modifier = Modifier.size(16.dp))
-
-                        Image(
-                            painter = painterResource(R.drawable.chat),
-                            contentDescription = "un potit chat",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(200.dp)
-                                .clip(CircleShape)
-                                .border(BorderStroke(2.dp, Color.Black), CircleShape)
-                                .scale(1.25f)
-                        )
-
-                        Spacer(modifier = Modifier.size(16.dp))
-
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .wrapContentSize(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Column {
-                                    Image(
-                                        painter = painterResource(R.drawable.telicon),
-                                        contentDescription = "un téléphone",
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Image(
-                                        painter = painterResource(R.drawable.baseline),
-                                        contentDescription = "un mail",
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-
-                                Column {
-                                    Text(text = "simonbo@orange.fr")
-                                    Text(text = "06 00 90 00 69")
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.size(32.dp))
-                            Button(onClick = { navController.navigate(DestinationFilms()) }) {
-                                Text(text = "Démarrer")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 

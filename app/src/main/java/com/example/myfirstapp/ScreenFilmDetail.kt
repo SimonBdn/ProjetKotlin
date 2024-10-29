@@ -1,6 +1,5 @@
 package com.example.myfirstapp
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -20,19 +19,22 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalConfiguration
 
 @Composable
 fun ScreenFilmDetail(mainViewModel: MainViewModel, filmId: String, navController: NavController) {
     mainViewModel.getMovieDetails(filmId)
     val movies by mainViewModel.movies.collectAsState()
     val movie = movies.find { it.id == filmId }
-    val columns = 2
+    val configuration = LocalConfiguration.current
+    val formatTel = configuration.screenWidthDp < configuration.screenHeightDp
+    val columns = if(formatTel) 2 else 4
 
     movie?.let { film ->
         val genreNames = film.genres.joinToString(", ") { it.name }
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Fixed(columns),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
@@ -63,7 +65,8 @@ fun ScreenFilmDetail(mainViewModel: MainViewModel, filmId: String, navController
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Genres : $genreNames", style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Résumé : ${film.overview}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = film.overview?.takeIf { it.isNotEmpty() } ?: "Résumé non disponible",
+                         style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(text = "Acteurs :", style = MaterialTheme.typography.headlineSmall)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -74,7 +77,7 @@ fun ScreenFilmDetail(mainViewModel: MainViewModel, filmId: String, navController
                 Card(
                     modifier = Modifier
                         .padding(8.dp)
-                        .height(200.dp)
+                        .height(300.dp)
                         .clickable { navController.navigate("acteurDetail/${cast.id}") },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
@@ -85,12 +88,14 @@ fun ScreenFilmDetail(mainViewModel: MainViewModel, filmId: String, navController
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        val imageUrl = "https://image.tmdb.org/t/p/w154${cast.profile_path}"
+                        val imageUrl = "https://image.tmdb.org/t/p/w342${cast.profile_path}"
                         AsyncImage(
                             model = imageUrl,
                             contentDescription = cast.name
                         )
-                        Text(text = cast.character)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = cast.character, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(text = cast.name)
                     }
                 }

@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 class MainViewModel : ViewModel() {
     val api_key = "317519a83cc36ab9367ba50e5aa75b40"
@@ -21,6 +24,7 @@ class MainViewModel : ViewModel() {
     val movies = MutableStateFlow<List<TmdbMovie>>(listOf())
     val series = MutableStateFlow<List<TmdbSerie>>(listOf())
     val actors = MutableStateFlow<List<TmdbActor>>(listOf())
+    var searchQuery by mutableStateOf("")
 
     fun getMovies(language: String = "fr") {
         viewModelScope.launch {
@@ -28,9 +32,9 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun searchMovies(searchtext: String) {
+    fun searchMovies() {
         viewModelScope.launch {
-            movies.value = api.searchmovies(api_key, searchtext).results
+            movies.value = api.searchmovies(api_key, searchQuery).results
         }
     }
 
@@ -56,6 +60,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun searchSeries() {
+        viewModelScope.launch {
+            series.value = api.searchseries(api_key, searchQuery).results
+        }
+    }
+
     fun getActors(language: String = "fr") {
         viewModelScope.launch {
             actors.value = api.lastactors(api_key, language).results
@@ -70,6 +80,18 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun searchActors() {
+        viewModelScope.launch {
+            actors.value = api.searchactors(api_key, searchQuery).results
+        }
+    }
+
+    fun getActorMovies(id: String, language: String = "fr") {
+        viewModelScope.launch {
+            val response = api.actorMovies(id, api_key, language)
+            movies.value = response.cast.sortedByDescending { it.release_date }
+        }
+    }
 
 
 }

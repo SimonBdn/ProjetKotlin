@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 
@@ -26,13 +27,15 @@ fun ScreenSerieDetail(mainViewModel: MainViewModel, serieId: String, navControll
     mainViewModel.getSerieDetails(serieId)
     val series by mainViewModel.series.collectAsState()
     val serie = series.find { it.id == serieId }
-    val columns = 2
+    val configuration = LocalConfiguration.current
+    val formatTel = configuration.screenWidthDp < configuration.screenHeightDp
+    val columns = if(formatTel) 2 else 4
 
     serie?.let { serie ->
         val genreNames = serie.genres.joinToString(", ") { it.name }
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Fixed(columns),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
@@ -63,7 +66,8 @@ fun ScreenSerieDetail(mainViewModel: MainViewModel, serieId: String, navControll
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Genres : $genreNames", style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Résumé : ${serie.overview}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = serie.overview?.takeIf { it.isNotEmpty() } ?: "Biographie non disponible",
+                         style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(text = "Acteurs :", style = MaterialTheme.typography.headlineSmall)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -74,7 +78,7 @@ fun ScreenSerieDetail(mainViewModel: MainViewModel, serieId: String, navControll
                 Card(
                     modifier = Modifier
                         .padding(8.dp)
-                        .height(200.dp)
+                        .height(300.dp)
                         .clickable { navController.navigate("acteurDetail/${cast.id}") },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
@@ -85,12 +89,14 @@ fun ScreenSerieDetail(mainViewModel: MainViewModel, serieId: String, navControll
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        val imageUrl = "https://image.tmdb.org/t/p/w154${cast.profile_path}"
+                        val imageUrl = "https://image.tmdb.org/t/p/w342${cast.profile_path}"
                         AsyncImage(
                             model = imageUrl,
                             contentDescription = cast.name
                         )
-                        Text(text = cast.character)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = cast.character, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(text = cast.name)
                     }
                 }
