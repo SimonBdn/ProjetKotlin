@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -82,7 +83,9 @@ fun ProfilHome(windowClass: WindowSizeClass, navController: NavController) {
                 }
 
                 Spacer(modifier = Modifier.size(32.dp))
-                Button(onClick = { navController.navigate(DestinationFilms()) }) {
+                Button(onClick = { navController.navigate(DestinationFilms()) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB19CD9))
+                ) {
                     Text(text = "Démarrer")
                 }
             }
@@ -150,7 +153,9 @@ fun ProfilHome(windowClass: WindowSizeClass, navController: NavController) {
                         }
 
                         Spacer(modifier = Modifier.size(32.dp))
-                        Button(onClick = { navController.navigate(DestinationFilms()) }) {
+                        Button(onClick = { navController.navigate(DestinationFilms()) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB19CD9))
+                        ) {
                             Text(text = "Démarrer")
                         }
                     }

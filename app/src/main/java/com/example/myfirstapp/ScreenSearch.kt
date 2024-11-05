@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,16 +36,36 @@ fun ScreenSearch(mainViewModel: MainViewModel, navController: NavController) {
             modifier = Modifier.padding(bottom = 16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = { filter = "All" }) {
+            Button(
+                onClick = { filter = "All" },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (filter == "All") Color(0xFF8A2BE2) else Color(0xFFB19CD9)
+                )
+            ) {
                 Text("All")
             }
-            Button(onClick = { filter = "Movies" }) {
+            Button(
+                onClick = { filter = "Movies" },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (filter == "Movies") Color(0xFF8A2BE2) else Color(0xFFB19CD9)
+                )
+            ) {
                 Text("Films")
             }
-            Button(onClick = { filter = "Series" }) {
+            Button(
+                onClick = { filter = "Series" },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (filter == "Series") Color(0xFF8A2BE2) else Color(0xFFB19CD9)
+                )
+            ) {
                 Text("Series")
             }
-            Button(onClick = { filter = "Actors" }) {
+            Button(
+                onClick = { filter = "Actors" },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (filter == "Actors") Color(0xFF8A2BE2) else Color(0xFFB19CD9)
+                )
+            ) {
                 Text("Acteurs")
             }
         }
