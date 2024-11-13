@@ -49,11 +49,12 @@ fun ScreenExamen(mainViewModel: MainViewModel, navController: NavController) {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    /*val imageUrl = "https://image.tmdb.org/t/p/w342${movieH.poster_path}"
+                    if(movieH.poster_path != null) {
+                    val imageUrl = "https://image.tmdb.org/t/p/w342${movieH.poster_path}"
                     AsyncImage(
                         model = imageUrl,
-                        contentDescription = movie.title
-                    )*/
+                        contentDescription = movieH.name
+                    )}
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = movieH.name,
                         fontWeight = FontWeight.Bold)
