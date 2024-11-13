@@ -25,6 +25,7 @@ class MainViewModel : ViewModel() {
     val series = MutableStateFlow<List<TmdbSerie>>(listOf())
     val actors = MutableStateFlow<List<TmdbActor>>(listOf())
     var searchQuery by mutableStateOf("")
+    val moviesHorror = MutableStateFlow<List<HorrorCollection>>(listOf())
 
     fun getMovies(language: String = "fr") {
         viewModelScope.launch {
@@ -93,5 +94,11 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun getHorrorCollections(language: String = "fr") {
+        viewModelScope.launch {
+            val response = api.searchCollection(api_key, "horror", language)
+            moviesHorror.value = response.results
+        }
+    }
 
 }

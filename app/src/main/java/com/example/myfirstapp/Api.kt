@@ -55,4 +55,9 @@ interface Api {
     suspend fun actorMovies(@Path("id") id: String,
                             @Query("api_key") api_key: String,
                             @Query("language") langague: String): TmdbMovieResult
+
+    @GET("search/collection")
+    suspend fun searchCollection(@Query("api_key") api_key: String,
+                                 @Query("query") searchtext: String,
+                                 @Query("language") langague: String): HorrorCollectionResponse
 }
