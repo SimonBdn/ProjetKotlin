@@ -67,3 +67,19 @@ data class Cast(
     val profile_path: String? = "",
     val character: String = ""
 )
+
+data class HorrorCollection(
+    val adult: Boolean,
+    val backdrop_path: String?,
+    val id: Int,
+    val name: String,
+    val original_language: String,
+    val original_name: String,
+    val overview: String,
+    val poster_path: String?
+)
+
+data class HorrorCollectionResponse(
+    val page: Int,
+    val results: List<HorrorCollection>,
+)
