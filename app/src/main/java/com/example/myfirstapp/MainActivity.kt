@@ -46,6 +46,7 @@ import androidx.navigation.NavController
 @Serializable class DestinationFilms
 @Serializable class DestinationSeries
 @Serializable class DestinationActeurs
+@Serializable class DestinationExamen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +73,9 @@ fun MainScreen() {
                 TextField(
                     value = mainViewModel.searchQuery,
                     onValueChange = { mainViewModel.searchQuery = it },
-                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
                     placeholder = { Text("Rechercher...") },
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
@@ -126,6 +129,7 @@ fun MainScreen() {
                     ScreenActorDetail(mainViewModel, acteurId, navController)
                 }
                 composable("ScreenSearch") { ScreenSearch(mainViewModel, navController) }
+                composable<DestinationExamen> { ScreenExamen(mainViewModel, navController) }
             }
         } else {
             Row(modifier = Modifier.fillMaxSize()) {
@@ -153,6 +157,7 @@ fun MainScreen() {
                         ScreenActorDetail(mainViewModel, acteurId, navController)
                     }
                     composable("ScreenSearch") { ScreenSearch(mainViewModel, navController) }
+                    composable<DestinationExamen> { ScreenExamen(mainViewModel, navController) }
                 }
             }
         }
@@ -184,6 +189,12 @@ fun BottomNavigationBar(navController: NavController) {
                     contentDescription = "Acteurs")},
                 selected = currentDestination?.hasRoute<DestinationActeurs>() == true,
                 onClick = { navController.navigate(DestinationActeurs()) })
+            NavigationBarItem(
+                icon = { Icon(painterResource(R.drawable.anchor),
+                    contentDescription = "Examen")},
+                selected = currentDestination?.hasRoute<DestinationExamen>() == true,
+                onClick = { navController.navigate(DestinationExamen()) }
+            )
         }
     }
 }
@@ -207,6 +218,10 @@ fun NavigationRail(navController: NavController) {
                 contentDescription = "Acteurs")},
                 selected = currentDestination?.hasRoute<DestinationActeurs>() == true,
                 onClick = { navController.navigate(DestinationActeurs()) })
+            NavigationRailItem(icon = { Icon(painterResource(R.drawable.anchor),
+                contentDescription = "Examen")},
+                selected = currentDestination?.hasRoute<DestinationExamen>() == true,
+                onClick = { navController.navigate(DestinationExamen()) })
         }
     }
 }
